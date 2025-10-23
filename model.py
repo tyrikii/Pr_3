@@ -1,5 +1,6 @@
-from typing import List
+from typing import List, Optional
 from pydantic import BaseModel
+from fastapi import Form
 
 class Item(BaseModel):
     item: str
@@ -8,10 +9,7 @@ class Item(BaseModel):
     model_config = {
         "json_schema_extra": {
             "examples": [
-                {
-                    "item": "Read a book",
-                    "status": "pending"
-                }
+                {"item": "Read a book", "status": "pending"}
             ]
         }
     }
@@ -22,27 +20,23 @@ class TodoItem(BaseModel):
     model_config = {
         "json_schema_extra": {
             "examples": [
-                {
-                    "item": "Read the next chapter of the book"
-                }
+                {"item": "Read the next chapter of the book"}
             ]
         }
     }
 
 class Todo(BaseModel):
-    id: int
+    id: Optional[int] = None
     item: Item
+
+    @classmethod
+    def as_form(cls, item: str = Form(...), status: str = Form("pending")):
+        return cls(item=Item(item=item, status=status))
 
     model_config = {
         "json_schema_extra": {
             "examples": [
-                {
-                    "id": 1,
-                    "item": {
-                        "item": "Learn FastAPI",
-                        "status": "pending"
-                    }
-                }
+                {"id": 1, "item": {"item": "Learn FastAPI", "status": "pending"}}
             ]
         }
     }
@@ -53,12 +47,7 @@ class TodoItems(BaseModel):
     model_config = {
         "json_schema_extra": {
             "examples": [
-                {
-                    "todos": [
-                        {"item": "Learn FastAPI"},
-                        {"item": "Build a project"}
-                    ]
-                }
+                {"todos": [{"item": "Learn FastAPI"}, {"item": "Build a project"}]}
             ]
         }
     }
