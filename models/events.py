@@ -1,43 +1,31 @@
-from sqlmodel import JSON, SQLModel, Field, Column
+from beanie import Document
+from pydantic import BaseModel
 from typing import Optional, List
 
-# Основная модель таблицы
-class Event(SQLModel, table=True):
-    id: int = Field(default=None, primary_key=True)
+class Event(Document):
     title: str
     image: str
     description: str
-    # SQLModel по умолчанию не умеет хранить списки, используем JSON
-    tags: List[str] = Field(sa_column=Column(JSON)) 
+    tags: List[str]
     location: str
 
+    class Settings:
+        name = "events" # Имя коллекции в MongoDB
+
     class Config:
-        arbitrary_types_allowed = True
         json_schema_extra = {
             "example": {
                 "title": "FastAPI Book Launch",
                 "image": "https://linktomyimage.com/image.png",
-                "description": "We will be discussing the contents of the FastAPI book in this event.",
+                "description": "Text message",
                 "tags": ["python", "fastapi", "book", "launch"],
                 "location": "Google Meet"
             }
         }
 
-# Модель для обновления (все поля необязательные)
-class EventUpdate(SQLModel):
+class EventUpdate(BaseModel):
     title: Optional[str]
     image: Optional[str]
     description: Optional[str]
     tags: Optional[List[str]]
     location: Optional[str]
-
-    class Config:
-        json_schema_extra = {
-            "example": {
-                "title": "FastAPI Book Launch",
-                "image": "https://linktomyimage.com/image.png",
-                "description": "The launch of the FastAPI book will hold on xyz.",
-                "tags": ["python", "fastapi"],
-                "location": "virtual"
-            }
-        }
